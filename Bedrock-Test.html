@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>RAG Chatbot</title>
+<style>
+    body {
+        font-family: sans-serif;
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+    #chat {
+        border: 1px solid #ccc;
+        padding: 15px;
+        height: 400px;
+        overflow-y: auto;
+        background: #fafafa;
+    }
+    .msg-user { color: #0066cc; margin: 10px 0; }
+    .msg-bot  { color: #333; margin: 10px 0; }
+    input, button {
+        padding: 10px;
+        font-size: 16px;
+    }
+    #inputBox { width: 75%; }
+</style>
+</head>
+<body>
+
+<h2>RAG Chatbot Web UI</h2>
+
+<div id="chat"></div>
+
+<br>
+
+<input id="inputBox" placeholder="質問を入力…" />
+<button onclick="sendMessage()">送信</button>
+
+<script>
+    const API_URL = "https://go1hf1oyo6.execute-api.ap-northeast-1.amazonaws.com/ask";
+
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("inputBox");
+
+    async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        // ユーザーの発言を表示
+        chat.innerHTML += `<div class="msg-user">あなた: ${text}</div>`;
+        input.value = "";
+        chat.scrollTop = chat.scrollHeight;
+
+        // APIに送信
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: text })
+        });
+
+        const data = await res.json();
+        const answer = data.answer || data.error || "（エラー）";
+
+        // Botの返答を表示
+        chat.innerHTML += `<div class="msg-bot">AI: ${answer}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
